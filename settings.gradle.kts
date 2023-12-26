@@ -11,4 +11,4 @@ plugins {
 }
 
 rootProject.name = "waltid-openbadgecredential-cli"
-include("app")
+include("walt-cli")
