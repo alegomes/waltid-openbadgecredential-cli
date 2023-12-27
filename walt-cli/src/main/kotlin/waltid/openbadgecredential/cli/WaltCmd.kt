@@ -7,7 +7,6 @@ import kotlin.system.exitProcess
 import picocli.CommandLine.*
 import picocli.CommandLine.Model.CommandSpec
 
-
 @Command(name = "walt", 
         mixinStandardHelpOptions = true, // adds -h and -v 
         version = ["0.1"],
