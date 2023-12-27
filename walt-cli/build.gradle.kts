@@ -55,12 +55,12 @@ dependencies {
     // // I didn't use v1.1.1 because it depends on an artifact version 
     // // that doesn't exist at https://maven.walt.id 
     // // It sets waltid-sdjwt-1.SNAPSHOT instead of (waltid-sdjwt-1.0.0-SNAPSHOT)
-    // implementation("id.walt.credentials:waltid-verifiable-credentials:1.0.1")
-    // implementation("id.walt.crypto:waltid-crypto:1.1.1")
-    // implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
+    implementation("id.walt.credentials:waltid-verifiable-credentials:1.0.1")
+    implementation("id.walt.crypto:waltid-crypto:1.1.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
     
-    // val coroutines_version = "1.6.4"
-    // implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version")
+    val coroutines_version = "1.6.4"
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version")
     // implementation("org.jetbrains.kotlinx:kotlinx-coroutines-swing:$coroutines_version")
     // implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:$coroutines_version")
     // implementation("org.jetbrains.kotlinx:kotlinx-coroutines-slf4j:$coroutines_version")

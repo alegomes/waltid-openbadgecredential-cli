@@ -9,7 +9,7 @@
             "request": "launch",
             "name": "Issue VC",
             "projectRoot": "${workspaceFolder}/walt-cli",
-            "mainClass": "waltid.openbadgecredential.cli.WaltCmdKt",
+            "mainClass": "waltid.openbadgecredential.cli.WaltCmdKt issue",
             "preLaunchTask": "build",
             "logLevel": "INFO",
             // "enableJsonLogging": true,
