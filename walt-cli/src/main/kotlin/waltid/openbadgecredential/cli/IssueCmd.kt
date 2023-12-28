@@ -1,9 +1,7 @@
 package waltid.openbadgecredential.cli
 
-import picocli.CommandLine.*
-import picocli.CommandLine.Model.CommandSpec
+import picocli.CommandLine.Command
 
-import waltid.openbadgecredential.cli.utils.issueVC
 @Command(
         name = "issue",
         mixinStandardHelpOptions = true,
@@ -12,9 +10,10 @@ import waltid.openbadgecredential.cli.utils.issueVC
 class IssueCmd : Runnable {
 
     override fun run() {
-        val vc = issueVC()
-        println("------------------------")
-        println("Issued VC:")
+        val vc = OpenBadgeService().issueVC()
+        println("------------------------------------------------------------------")
+        println("JWT-encoded version of the newly created (and signed?) credential:")
+        println("------------------------------------------------------------------")
         println(vc)
     }
 }

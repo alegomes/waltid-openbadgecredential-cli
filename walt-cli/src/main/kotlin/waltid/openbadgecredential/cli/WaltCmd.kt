@@ -10,7 +10,7 @@ import picocli.CommandLine.Model.CommandSpec
 @Command(name = "walt", 
         mixinStandardHelpOptions = true, // adds -h and -v 
         version = ["0.1"],
-        description = ["Command line tool for verifiable credentials handling."],
+        description = ["Command line tool to issue and verify Open Badge credentials."],
         subcommands = [IssueCmd::class]) // walt issue
 class WaltCmd : Runnable {
 
