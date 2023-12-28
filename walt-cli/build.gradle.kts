@@ -43,28 +43,35 @@ dependencies {
     // This dependency is used by the application.
     implementation(libs.guava)
 
-    // Add picocli as an implementation
+    // PicoCLI
     implementation ("info.picocli:picocli:4.6.1")
 
-    // // Have no idea why, but this is needed for debugging in VSCode
-    // implementation("org.jetbrains:markdown:0.5.0")
-    // // implementation("app.softwork:kotlinx-uuid-core:LATEST") // java.lang.NoClassDefFoundError: kotlinx/uuid/UUID
-    // implementation("app.softwork:kotlinx-uuid-core:0.0.22")
-    // implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.5.0") // java.lang.ClassNotFoundException: kotlinx.datetime.Clock$System
+    // Walt.id
 
     // // I didn't use v1.1.1 because it depends on an artifact version 
     // // that doesn't exist at https://maven.walt.id 
     // // It sets waltid-sdjwt-1.SNAPSHOT instead of (waltid-sdjwt-1.0.0-SNAPSHOT)
     implementation("id.walt.credentials:waltid-verifiable-credentials:1.0.1")
     implementation("id.walt.crypto:waltid-crypto:1.1.1")
+
+    // Kotlinx
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
-    
-    val coroutines_version = "1.6.4"
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version")
+    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.1")
+    implementation("app.softwork:kotlinx-uuid-core:0.0.22")
+
+//    val coroutines_version = "1.6.4"
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
     // implementation("org.jetbrains.kotlinx:kotlinx-coroutines-swing:$coroutines_version")
     // implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:$coroutines_version")
     // implementation("org.jetbrains.kotlinx:kotlinx-coroutines-slf4j:$coroutines_version")
     // implementation("org.jetbrains.kotlinx:kotlinx-coroutines-debug:$coroutines_version")
+
+// // Have no idea why, but this is needed for debugging in VSCode
+    // implementation("org.jetbrains:markdown:0.5.0")
+    // // implementation("app.softwork:kotlinx-uuid-core:LATEST") // java.lang.NoClassDefFoundError: kotlinx/uuid/UUID
+    // implementation("app.softwork:kotlinx-uuid-core:0.0.22")
+    // implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.5.0") // java.lang.ClassNotFoundException: kotlinx.datetime.Clock$System
+
 
 }
 
