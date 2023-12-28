@@ -13,6 +13,8 @@ class IssueCmd : Runnable {
 
     override fun run() {
         val vc = issueVC()
-        println("Issued VC: $vc")
+        println("------------------------")
+        println("Issued VC:")
+        println(vc)
     }
 }

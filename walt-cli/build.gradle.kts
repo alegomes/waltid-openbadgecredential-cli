@@ -66,6 +66,9 @@ dependencies {
     // implementation("org.jetbrains.kotlinx:kotlinx-coroutines-slf4j:$coroutines_version")
     // implementation("org.jetbrains.kotlinx:kotlinx-coroutines-debug:$coroutines_version")
 
+    // Nimbus
+    implementation("com.nimbusds:nimbus-jose-jwt:9.37.1")
+
 // // Have no idea why, but this is needed for debugging in VSCode
     // implementation("org.jetbrains:markdown:0.5.0")
     // // implementation("app.softwork:kotlinx-uuid-core:LATEST") // java.lang.NoClassDefFoundError: kotlinx/uuid/UUID
