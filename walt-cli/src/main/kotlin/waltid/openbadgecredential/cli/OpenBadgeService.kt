@@ -18,6 +18,17 @@ import waltid.openbadgecredential.cli.model.OpenBadge
 import waltid.openbadgecredential.cli.model.Profile
 import kotlin.time.Duration.Companion.days
 
+import com.nimbusds.jose.JWSAlgorithm
+import com.nimbusds.jose.crypto.MACSigner
+import com.nimbusds.jose.crypto.MACVerifier
+import id.walt.crypto.utils.JsonUtils.printAsJson
+import kotlinx.serialization.SerializationStrategy
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+
+private val prettyJson = Json { prettyPrint = true }
+private inline fun <reified T> toPrettyJson(content : T): String = prettyJson.encodeToString(content)
+
 class OpenBadgeService {
 
     // Ideally, both the issuer and the holder should already exist and
@@ -92,6 +103,7 @@ class OpenBadgeService {
         return jwt
     }
 
+
     fun presentVC(jwt : String) : JsonElement {
 
         // waltid-verifier-api Main.kt
@@ -103,10 +115,25 @@ class OpenBadgeService {
 
         // JWT as defined in https://www.iana.org/assignments/jwt/jwt.xhtml
         val decodedJWT = jwt.decodeJws(withSignature = true)
-        println("Decoded JWT: $decodedJWT")
+        println("")
+        println("+-------------+")
+        println("| Decoded JWT |")
+        println("+-------------+")
+        println("\n---- Header")
+        println(toPrettyJson(decodedJWT.header))
+        println("\n---- Payload")
+        println(toPrettyJson(decodedJWT.payload))
+        println("\n---- Signature")
+        println(toPrettyJson(decodedJWT.signature))
 
         val decodedVC = decodedJWT.payload["vc"]
-        println("Decoded VC: $decodedVC")
+
+//        println("")
+//        println("+------------+")
+//        println("| Decoded VC |")
+//        println("+------------+")
+//        println(toPrettyJson(decodedVC))
+//        println()
 
         val vp = PresentationBuilder().apply {
 
@@ -162,17 +189,17 @@ class OpenBadgeService {
 //
 //    }
 //
-//    private fun verifyVC(jwt : String) {
-//
-//        val sharedSecret = "ef23f749-7238-481a-815c-f0c2157dfa8e"
-//
-//        // Create SimpleJWTCryptoProvider with MACSigner and MACVerifier
-//        val cryptoProvider = SimpleJWTCryptoProvider(JWSAlgorithm.HS256, jwsSigner = null, jwsVerifier = MACVerifier(sharedSecret))
+    fun verifyVC(jwt : String) : String {
+
+        val sharedSecret = "ef23f749-7238-481a-815c-f0c2157dfa8e"
+
+        // Create SimpleJWTCryptoProvider with MACSigner and MACVerifier
+        val cryptoProvider = SimpleJWTCryptoProvider(JWSAlgorithm.HS256, jwsSigner = null, jwsVerifier = MACVerifier(sharedSecret))
 //
 ////    val undisclosedJwt = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI0NTYiLCJfc2QiOlsiaGx6ZmpmMDRvNVpzTFIyNWhhNGMtWS05SFcyRFVseGNnaU1ZZDMyNE5nWSJdfQ.2fsLqzujWt0hS0peLS8JLHyyo3D5KCDkNnHcBYqQwVo~"
 //
-//        // verify and parse presented SD-JWT with all fields undisclosed, throws Exception if verification fails!
-//        val parsedVerifiedUndisclosedJwt = SDJwt.verifyAndParse(jwt, cryptoProvider)
+        // verify and parse presented SD-JWT with all fields undisclosed, throws Exception if verification fails!
+        val parsedVerifiedUndisclosedJwt = SDJwt.verifyAndParse(jwt, cryptoProvider)
 //
 //        // print full payload with disclosed fields only
 //        println("Undisclosed JWT payload:")
@@ -192,6 +219,8 @@ class OpenBadgeService {
 //        println("Disclosed JWT payload:")
 ////    println(parsedVerifiedDisclosedJwt.sdPayload.fullPayload.toString())
 //        println(parsedVerifiedDisclosedJwt.sdJwt.fullPayload.toString())
-//    }
+
+    return parsedVerifiedUndisclosedJwt.toString()
+    }
 
 }

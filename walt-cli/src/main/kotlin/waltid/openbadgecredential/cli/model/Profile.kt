@@ -10,7 +10,8 @@ class Profile {
 
     val key : Key by lazy {
         runBlocking {
-            LocalKey.generate(KeyType.Ed25519)
+//            LocalKey.generate(KeyType.Ed25519)
+            LocalKey.generate(KeyType.RSA)
         }
     }
 

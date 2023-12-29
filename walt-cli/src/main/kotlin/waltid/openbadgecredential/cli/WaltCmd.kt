@@ -11,7 +11,7 @@ import picocli.CommandLine.Model.CommandSpec
         mixinStandardHelpOptions = true, // adds -h and -v 
         version = ["0.1"],
         description = ["Command line tool to issue and verify Open Badge credentials."],
-        subcommands = [IssueCmd::class, PresentCmd::class]) // walt issue
+        subcommands = [IssueCmd::class, PresentCmd::class, VerifyCmd::class]) // walt issue | present | verify
 class WaltCmd : Runnable {
 
     @Spec
