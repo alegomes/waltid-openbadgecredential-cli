@@ -28,7 +28,6 @@ repositories {
     // Required by id.walt.credentials:waltid-verifiable-credentials and dependencies
     maven("https://maven.walt.id/repository/waltid/") 
     maven("https://maven.walt.id/repository/waltid-ssi-kit/")
-    
 }
 
 dependencies {
@@ -59,12 +58,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.1")
     implementation("app.softwork:kotlinx-uuid-core:0.0.22")
 
-//    val coroutines_version = "1.6.4"
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
-    // implementation("org.jetbrains.kotlinx:kotlinx-coroutines-swing:$coroutines_version")
-    // implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:$coroutines_version")
-    // implementation("org.jetbrains.kotlinx:kotlinx-coroutines-slf4j:$coroutines_version")
-    // implementation("org.jetbrains.kotlinx:kotlinx-coroutines-debug:$coroutines_version")
 
     // Nimbus
     implementation("com.nimbusds:nimbus-jose-jwt:9.37.1")

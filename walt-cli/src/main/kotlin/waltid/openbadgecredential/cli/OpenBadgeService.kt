@@ -3,20 +3,20 @@ package waltid.openbadgecredential.cli
 //import id.walt.sdjwt.JWTClaimsSet
 
 
-import com.nimbusds.jose.JWSAlgorithm
-import com.nimbusds.jose.crypto.MACVerifier
+import id.walt.credentials.PresentationBuilder
 import id.walt.credentials.issuance.Issuer.mergingJwtIssue
 import id.walt.credentials.vc.vcs.W3CVC
 import id.walt.crypto.utils.JsonUtils.toJsonElement
 import id.walt.crypto.utils.JsonUtils.toJsonObject
+import id.walt.crypto.utils.JwsUtils.decodeJws
 import id.walt.did.helpers.WaltidServices
 import id.walt.sdjwt.*
 import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.Clock
+import kotlinx.serialization.json.JsonElement
 import waltid.openbadgecredential.cli.model.OpenBadge
 import waltid.openbadgecredential.cli.model.Profile
 import kotlin.time.Duration.Companion.days
-
 
 class OpenBadgeService {
 
@@ -90,6 +90,42 @@ class OpenBadgeService {
         }
 
         return jwt
+    }
+
+    fun presentVC(jwt : String) : JsonElement {
+
+        // waltid-verifier-api Main.kt
+//        DidService.apply {
+//            registerResolver(LocalResolver())
+//            updateResolversForMethods()
+//        }
+//        PolicyManager.registerPolicies(PresentationDefinitionPolicy())
+
+        // JWT as defined in https://www.iana.org/assignments/jwt/jwt.xhtml
+        val decodedJWT = jwt.decodeJws(withSignature = true)
+        println("Decoded JWT: $decodedJWT")
+
+        val decodedVC = decodedJWT.payload["vc"]
+        println("Decoded VC: $decodedVC")
+
+        val vp = PresentationBuilder().apply {
+
+            // Same DID being used for the Issuer, the Subject and the VP Holder. Not cool :-/
+            did =  decodedJWT.payload["iss"].toString()
+
+            /* nbf, iat, jti set automatically to sane default values */
+
+            nonce = "ABC123DEF456GHI789JKL"
+
+            /* vp.context, vp.type, vp.id set automatically to sane default values */
+
+            addCredential(decodedVC.toJsonElement())
+
+        }.buildPresentationJson()
+//        .buildAndSign()
+
+        return vp
+
     }
 
 //    private fun presentSDJwt(jwt : String) {
