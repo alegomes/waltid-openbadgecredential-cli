@@ -25,6 +25,7 @@ import id.walt.crypto.utils.JsonUtils.printAsJson
 import kotlinx.serialization.SerializationStrategy
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import java.io.File
 
 private val prettyJson = Json { prettyPrint = true }
 private inline fun <reified T> toPrettyJson(content : T): String = prettyJson.encodeToString(content)
@@ -55,16 +56,22 @@ class OpenBadgeService {
         // Create VC
         val vc = this.createVC(assertion)
 
+        // Save the newly created VC in vc.json file
+        val fileName = "vc.json"
+        val file = File(fileName)
+        file.writeText(vc.toPrettyJson())
+
         println("-------------------------------------------------------")
-        println("Human-readable version of the newly created credential:")
+        println("Human-readable version of the newly created credential ")
+        println("saved at ${file.absolutePath}.")
         println("-------------------------------------------------------")
         println(vc.toPrettyJson())
 
         // Issue VC
         val signedVC = signVC(vc)
 
-//        presentSDJwt(signedVC)
-//        verifyVC(signedVC)
+        // Save the newly created VC in vc.json file
+        File("jwt.json").writeText(signedVC)
 
         return signedVC
     }
