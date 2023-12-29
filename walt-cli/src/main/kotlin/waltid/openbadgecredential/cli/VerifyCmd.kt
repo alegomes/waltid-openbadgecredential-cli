@@ -2,6 +2,7 @@ package waltid.openbadgecredential.cli
 
 import picocli.CommandLine
 import picocli.CommandLine.Command
+import waltid.openbadgecredential.cli.utils.toPrettyJson
 
 @Command(
         name = "verify",
@@ -17,6 +18,6 @@ class VerifyCmd : Runnable {
         println("------------------------------------------------------------------")
         println("Verification:")
         println("------------------------------------------------------------------")
-        println(vc)
+        println(toPrettyJson(vc))
     }
 }

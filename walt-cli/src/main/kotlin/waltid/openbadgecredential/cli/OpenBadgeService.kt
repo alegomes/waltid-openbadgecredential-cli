@@ -1,8 +1,5 @@
 package waltid.openbadgecredential.cli
 
-//import id.walt.sdjwt.JWTClaimsSet
-
-
 import id.walt.credentials.PresentationBuilder
 import id.walt.credentials.issuance.Issuer.mergingJwtIssue
 import id.walt.credentials.vc.vcs.W3CVC
@@ -25,10 +22,12 @@ import id.walt.crypto.utils.JsonUtils.printAsJson
 import kotlinx.serialization.SerializationStrategy
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.contentOrNull
+import waltid.openbadgecredential.cli.utils.prettyJson
 import java.io.File
+import waltid.openbadgecredential.cli.utils.toPrettyJson
 
-private val prettyJson = Json { prettyPrint = true }
-private inline fun <reified T> toPrettyJson(content : T): String = prettyJson.encodeToString(content)
 
 class OpenBadgeService {
 
@@ -135,17 +134,10 @@ class OpenBadgeService {
 
         val decodedVC = decodedJWT.payload["vc"]
 
-//        println("")
-//        println("+------------+")
-//        println("| Decoded VC |")
-//        println("+------------+")
-//        println(toPrettyJson(decodedVC))
-//        println()
-
-        val vp = PresentationBuilder().apply {
+        val builder = PresentationBuilder().apply {
 
             // Same DID being used for the Issuer, the Subject and the VP Holder. Not cool :-/
-            did =  decodedJWT.payload["iss"].toString()
+            did = (decodedJWT.payload["iss"] as JsonPrimitive).contentOrNull
 
             /* nbf, iat, jti set automatically to sane default values */
 
@@ -155,8 +147,17 @@ class OpenBadgeService {
 
             addCredential(decodedVC.toJsonElement())
 
-        }.buildPresentationJson()
-//        .buildAndSign()
+        }
+
+        val vp = builder.buildPresentationJson()
+
+        // TODO()
+        //  - Using a random key
+        //  - buildAndSign returns nothing
+//        val vp2 = runBlocking { builder.buildAndSign(issuer.key) }
+
+        // Save presentation for later use
+        File("presentation.json").writeText(toPrettyJson(vp))
 
         return vp
 
