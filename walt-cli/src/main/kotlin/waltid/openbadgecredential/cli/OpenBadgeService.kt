@@ -95,7 +95,14 @@ class OpenBadgeService {
                 "expires" to expirationDate.toString(),
         ).toJsonObject()
 
-        val jwt = runBlocking {
+        // If no data has to be updated.
+//        val jws = runBlocking { vc.signJws(
+//                issuerKey = issuer.key,
+//                issuerDid = issuer.did,
+//                subjectDid = holder.did)}
+
+        // Overwrites issuedOn and expires field and sign it.
+        val jws = runBlocking {
             vc.mergingJwtIssue(
                     issuerKey = issuer.key,
                     issuerDid = issuer.did,
@@ -106,7 +113,9 @@ class OpenBadgeService {
             )
         }
 
-        return jwt
+        return jws
+
+
     }
 
 
