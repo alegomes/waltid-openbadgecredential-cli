@@ -2,7 +2,6 @@ package waltid.openbadgecredential.cli
 
 import picocli.CommandLine
 import picocli.CommandLine.Command
-import waltid.openbadgecredential.cli.utils.toPrettyJson
 import java.io.File
 
 @Command(

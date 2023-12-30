@@ -1,10 +1,9 @@
 package waltid.openbadgecredential.cli
 
-import picocli.CommandLine
 import picocli.CommandLine.Command
 import picocli.CommandLine.Option
-import java.io.File
 import waltid.openbadgecredential.cli.utils.toPrettyJson
+import java.io.File
 
 @Command(
         name = "present",

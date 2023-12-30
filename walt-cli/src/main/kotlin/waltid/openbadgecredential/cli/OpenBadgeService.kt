@@ -93,10 +93,10 @@ class OpenBadgeService {
         ).toJsonObject()
 
         // If no data has to be updated.
-//        val jws = runBlocking { vc.signJws(
-//                issuerKey = issuer.key,
-//                issuerDid = issuer.did,
-//                subjectDid = holder.did)}
+        // val jws = runBlocking { vc.signJws(
+        //         issuerKey = issuer.key,
+        //         issuerDid = issuer.did,
+        //         subjectDid = holder.did)}
 
         // Overwrites issuedOn and expires field and sign it.
         val jws = runBlocking {
@@ -111,8 +111,6 @@ class OpenBadgeService {
         }
 
         return jws
-
-
     }
 
 
@@ -157,7 +155,6 @@ class OpenBadgeService {
         File("presentation.json").writeText(toPrettyJson(vp))
 
         return vp
-
     }
 
 //    private fun presentSDJwt(jwt : String) {
@@ -217,7 +214,6 @@ class OpenBadgeService {
         } // result type depends on Policy
 
         return result
-
     }
 
     fun verifyVC(jwt : String) : String {
