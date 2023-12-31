@@ -2,7 +2,11 @@ package waltid.openbadgecredential.cli
 
 import picocli.CommandLine
 import picocli.CommandLine.Command
+import picocli.CommandLine.Model.CommandSpec
+import picocli.CommandLine.Spec
 import java.io.File
+import kotlin.system.exitProcess
+
 
 @Command(
         name = "verify",
@@ -21,6 +25,9 @@ class VerifyCmd : Runnable {
             description = ["The signed JWT-encoded credential to be presented. Takes precedence over -f option."])
     lateinit var inlineSource: String;
 
+    @Spec
+    var spec: CommandSpec? = null
+
     override fun run() {
 
         var jws : String
@@ -29,8 +36,17 @@ class VerifyCmd : Runnable {
             println("Getting JWT from the command line argument.")
             jws = inlineSource
         } else {
-            println("Getting JWT from $fileSource file.")
-            jws = fileSource.readText()
+
+            if (fileSource.exists()) {
+                println("Getting JWT from $fileSource file.")
+                jws = fileSource.readText()
+            } else {
+                println("No option provided. Default to '-f $fileSource', but file doesn't exist. It seems you haven't created a presentation yet. Check `walt present` command")
+                spec?.parent()?.commandLine()?.usage(System.err);
+
+                exitProcess(-1)
+            }
+
         }
 
         println("")
