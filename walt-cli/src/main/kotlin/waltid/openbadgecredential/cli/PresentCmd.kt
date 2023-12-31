@@ -1,9 +1,11 @@
 package waltid.openbadgecredential.cli
 
+import picocli.CommandLine
 import picocli.CommandLine.Command
 import picocli.CommandLine.Option
 import waltid.openbadgecredential.cli.utils.toPrettyJson
 import java.io.File
+import kotlin.system.exitProcess
 
 @Command(
         name = "present",
@@ -21,34 +23,45 @@ class PresentCmd : Runnable {
                 description =   ["File with a JWT-encoded credential to be presented. Defaults to 'jwt.json'"])
         lateinit var fileSource : File
 
-        @Option(names = ["-t", "--jwt" ],
+        @Option(names = ["-i", "--inline" ],
                 required = false,
                 description = ["The JWT-encoded credential to be presented. Takes precedence over -f option."])
         lateinit var inlineSource: String;
 //    }
 
+    @CommandLine.Spec
+    var spec: CommandLine.Model.CommandSpec? = null
 
     override fun run() {
 
 //        val jwt = inlineSource ?: fileSource.readText()
-        var jwt : String
+        var jws : String
 
         if (this::inlineSource.isInitialized && inlineSource != null) {
-            println("Getting JWT from the command line argument.")
-            jwt = inlineSource
+            println("Getting VC JWT from the command line argument.")
+            jws = inlineSource
         } else {
-            println("Getting JWT from $fileSource file.")
-            jwt = fileSource.readText()
+
+            if (fileSource.exists()) {
+                println("Getting VC JWT from $fileSource file.")
+                jws = fileSource.readText()
+            } else {
+                println("No option provided. Default to '-f $fileSource', but file doesn't exist. It seems you haven't issued a credential yet. Check `walt issue` command")
+                spec?.parent()?.commandLine()?.usage(System.err);
+
+                exitProcess(-1)
+            }
+
         }
 
         println("")
         println("+-------------+")
         println("| Encoded JWT |")
         println("+-------------+")
-        println(jwt)
+        println(jws)
         println()
 
-        val vc = OpenBadgeService().presentVC(jwt)
+        val vc = OpenBadgeService().presentVC(jws)
         println("------------------------------------------------------------------")
         println("Presentation saved in presentation.json file")
         println("------------------------------------------------------------------")
