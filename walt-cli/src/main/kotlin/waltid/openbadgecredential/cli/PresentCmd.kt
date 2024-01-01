@@ -19,7 +19,7 @@ class PresentCmd : Runnable {
 
 //    class JWTSource {
         @Option(names = [ "-f", "--file" ],
-                defaultValue = "jwt.json",
+                defaultValue = "vc-jws.json",
                 description =   ["File with a JWT-encoded credential to be presented. Defaults to 'jwt.json'"])
         lateinit var fileSource : File
 
@@ -61,10 +61,10 @@ class PresentCmd : Runnable {
         println(jws)
         println()
 
-        val vc = OpenBadgeService().presentVC(jws)
+        val vpJWS = OpenBadgeService().presentVC(jws)
         println("------------------------------------------------------------------")
-        println("Presentation saved in presentation.json file")
+        println("Presentation saved in vp-jws.json file")
         println("------------------------------------------------------------------")
-        println(toPrettyJson(vc))
+        println(toPrettyJson(vpJWS))
     }
 }
