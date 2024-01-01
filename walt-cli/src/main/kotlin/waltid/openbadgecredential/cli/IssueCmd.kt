@@ -13,7 +13,7 @@ class IssueCmd : Runnable {
         val vc = OpenBadgeService().issueVC()
         println("------------------------------------------------------------------")
         println("JWT-encoded version of the newly created (and signed?) credential ")
-        println("saved in file jwt.json to be verified later.")
+        println("saved in file vc-jws.json to be verified later.")
         println("------------------------------------------------------------------")
         println(vc)
     }
