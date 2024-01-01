@@ -4,9 +4,13 @@ import com.nimbusds.jose.JWSAlgorithm
 import com.nimbusds.jose.crypto.MACVerifier
 import id.walt.credentials.PresentationBuilder
 import id.walt.credentials.issuance.Issuer.mergingJwtIssue
+import id.walt.credentials.schemes.JwsSignatureScheme
 import id.walt.credentials.vc.vcs.W3CVC
+import id.walt.credentials.verification.PolicyRunner
 import id.walt.credentials.verification.PolicyRunner.runPolicyRequest
 import id.walt.credentials.verification.models.PolicyRequest
+import id.walt.credentials.verification.models.PolicyRequest.Companion.parsePolicyRequests
+import id.walt.credentials.verification.models.PresentationVerificationResponse
 import id.walt.credentials.verification.policies.JwtSignaturePolicy
 import id.walt.crypto.utils.JsonUtils.toJsonElement
 import id.walt.crypto.utils.JsonUtils.toJsonObject
@@ -16,9 +20,7 @@ import id.walt.did.helpers.WaltidServices
 import id.walt.sdjwt.*
 import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.Clock
-import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.JsonPrimitive
-import kotlinx.serialization.json.contentOrNull
+import kotlinx.serialization.json.*
 import waltid.openbadgecredential.cli.model.OpenBadge
 import waltid.openbadgecredential.cli.model.Profile
 import waltid.openbadgecredential.cli.utils.toPrettyJson
@@ -67,7 +69,7 @@ class OpenBadgeService {
         val signedVC = signVC(vc)
 
         // Save the newly created VC in vc.json file
-        File("jwt.json").writeText(signedVC)
+        File("vc-jws.json").writeText(signedVC)
 
         return signedVC
     }
@@ -114,7 +116,7 @@ class OpenBadgeService {
     }
 
 
-    fun presentVC(jwt : String) : JsonElement {
+    fun presentVC(jwt : String) : String {
 
         // waltid-verifier-api Main.kt
 //        DidService.apply {
@@ -146,15 +148,53 @@ class OpenBadgeService {
 
         val vp = builder.buildPresentationJson()
 
+        println("---------------------------------------------------------")
+        println("Human-readable version of the newly created presentation.")
+        println("saved at vp.json.")
+        println("---------------------------------------------------------")
+        println(toPrettyJson(vp))
+
+        // Now, let's generate a signed token from this the newly created presentation
+
+        // 1st try: failed.
+        // PresentationBuilder.buidlAndSign not returning the generated signed token.
+        // val vpJWS = runBlocking {
+        //     builder.buildAndSign(issuer.key)
+        // }
+
+        // 2nd try: failed.
+        // java.lang.IllegalArgumentException: No `type` supplied: {"iss":"did:key:z6Mkw54TW4dCtVqzR9pwWPELAupDaVQPNQrnrBLH87qVzpVL","sub":"did:key:z6MkfPHPVCo1ZUNvL6JbV9VBr7xy3YvuN4oiDf29jmRec26Z","vc":{"sub":"did:key:z6MkmpNWgxpZsH4SPytAJn1ezeYMEjWYEXCC2NHxm7QW9xHu","nbf":1704142692,"iat":1704142752,"jti":"urn:uuid:b20604ad-8217-4d2e-aaa9-de419389705f","iss":"did:key:z6MkmpNWgxpZsH4SPytAJn1ezeYMEjWYEXCC2NHxm7QW9xHu","nonce":"ABC123DEF456GHI789JKL","vp":{"@context":["https://www.w3.org/2018/credentials/v1"],"type":["VerifiablePresentation"],"id":"urn:uuid:b20604ad-8217-4d2e-aaa9-de419389705f","holder":"did:key:z6MkmpNWgxpZsH4SPytAJn1ezeYMEjWYEXCC2NHxm7QW9xHu","verifiableCredential":[{"context":"https://w3id.org/openbadges/v2","id":"urn:uuid:8ee4802b-0d00-469d-a500-8bea43488188","type":"Assertion","recipient":{"type":"email","identity":"alegomes@gmail.com","hashed":false},"badge":{"type":"BadgeClass","id":"urn:uuid:f9afd6ad-8618-4357-9c42-532e79961192","name":"Coffee Lover","description":"A true lover of good coffee","image":"https://www.teepublic.com/magnet/4067432-certified-coffee-lover-caffeine-addict","criteria":{"type":"Criteria","narrative":"Able to carry out detailed sensory analysis of different coffee tastings."},"issuer":{"id":"did:key:z6MkmpNWgxpZsH4SPytAJn1ezeYMEjWYEXCC2NHxm7QW9xHu","type":"Profile","name":"The Coffee Palace","url":"https://en.wikipedia.org/wiki/Coffee_palace","email":"alegomes@gmail.com"}},"verification":{"type":"hosted"},"issuedOn":"2023-12-31T22:22:11.784085Z","expires":"2024-06-28T22:22:11.784085Z"}]}}}
+        // VP encoded in an unexpected structure. Maybe because I'm using W3CVC?
+        // val vpJWS = runBlocking { W3CVC.fromJson(vp.toString()).signJws(
+        //                 issuerKey = issuer.key,
+        //                 issuerDid = issuer.did,
+        //                 subjectDid = holder.did)}
+
+        // 3rd try: failed
+        // java.lang.IllegalArgumentException: No `type` supplied: {"iss":"did:key:z6MkgtsqyseDUrcwGbwECbA1Vs8z7JMx8NaK3LvBwTKdkj6Z","sub":"did:key:z6MkrJMax5qDbjkJV3k7DapDPSC2z9e8u1rBareZjrsbPD3S","vc":{"sub":"did:key:z6MkmpNWgxpZsH4SPytAJn1ezeYMEjWYEXCC2NHxm7QW9xHu","nbf":1704146690,"iat":1704146750,"jti":"urn:uuid:7ad1bc7f-158e-4bbf-9614-95faf5c139ff","iss":"did:key:z6MkmpNWgxpZsH4SPytAJn1ezeYMEjWYEXCC2NHxm7QW9xHu","nonce":"ABC123DEF456GHI789JKL","vp":{"@context":["https://www.w3.org/2018/credentials/v1"],"type":["VerifiablePresentation"],"id":"urn:uuid:7ad1bc7f-158e-4bbf-9614-95faf5c139ff","holder":"did:key:z6MkmpNWgxpZsH4SPytAJn1ezeYMEjWYEXCC2NHxm7QW9xHu","verifiableCredential":[{"context":"https://w3id.org/openbadges/v2","id":"urn:uuid:8ee4802b-0d00-469d-a500-8bea43488188","type":"Assertion","recipient":{"type":"email","identity":"alegomes@gmail.com","hashed":false},"badge":{"type":"BadgeClass","id":"urn:uuid:f9afd6ad-8618-4357-9c42-532e79961192","name":"Coffee Lover","description":"A true lover of good coffee","image":"https://www.teepublic.com/magnet/4067432-certified-coffee-lover-caffeine-addict","criteria":{"type":"Criteria","narrative":"Able to carry out detailed sensory analysis of different coffee tastings."},"issuer":{"id":"did:key:z6MkmpNWgxpZsH4SPytAJn1ezeYMEjWYEXCC2NHxm7QW9xHu","type":"Profile","name":"The Coffee Palace","url":"https://en.wikipedia.org/wiki/Coffee_palace","email":"alegomes@gmail.com"}},"verification":{"type":"hosted"},"issuedOn":"2023-12-31T22:22:11.784085Z","expires":"2024-06-28T22:22:11.784085Z"}]}}}
+        // Same :-( VP encoded in an unexpected structure.
+        // Expected: jwt["type"] or jwt["vc"]["type"] or jws["vp"]["type"]
+        // Provided: jwt["vc"]["vp"]["type"]
+        val vpJWS = runBlocking {
+            JwsSignatureScheme().sign(
+                    data = vp.jsonObject,
+                    key = issuer.key,
+                    jwtHeaders = mapOf(JwsSignatureScheme.JwsHeader.KEY_ID to issuer.did),
+                    jwtOptions = mapOf(
+                            JwsSignatureScheme.JwsOption.ISSUER to JsonPrimitive(issuer.did),
+                            JwsSignatureScheme.JwsOption.SUBJECT to JsonPrimitive(holder.did),
+                    ),
+            )
+        }
+
         // TODO()
         //  - Using a random key
-        //  - buildAndSign returns nothing
-       // val vp2 = runBlocking { builder.buildAndSign(issuer.key) }
 
         // Save presentation for later use
-        File("presentation.json").writeText(toPrettyJson(vp))
+        File("vp.json").writeText(toPrettyJson(vp))
+        File("vp-jws.json").writeText(vpJWS)
 
-        return vp
+        return vpJWS
     }
 
 //    private fun presentSDJwt(jwt : String) {
@@ -192,9 +232,7 @@ class OpenBadgeService {
 //    }
 //
 
-    fun verifyJWS(jws : String) :  Result<Any>{
-        val vpPolicies = listOf(PolicyRequest(JwtSignaturePolicy()))
-        val vcPolicies = listOf(PolicyRequest(JwtSignaturePolicy()))
+    fun verifySignature(jws : String) :  Result<Any>{
 
         // JWT as defined in https://www.iana.org/assignments/jwt/jwt.xhtml
         val decodedJWS = jws.decodeJws(withSignature = true)
@@ -214,6 +252,72 @@ class OpenBadgeService {
         } // result type depends on Policy
 
         return result
+    }
+
+    fun verifyMultiplePolicies(jws : String) : PresentationVerificationResponse {
+        // val vpToken = "jwt"
+
+        // val vpPolicies = listOf(PolicyRequest(JwtSignaturePolicy()))
+        // val vcPolicies = listOf(PolicyRequest(JwtSignaturePolicy()))
+
+        // configure the validation policies
+        val vcPolicies = Json.parseToJsonElement(
+        """
+           [
+              "signature",
+              "expired",
+              "not-before"
+            ] 
+        """
+        ).jsonArray.parsePolicyRequests()
+
+        val vpPolicies = Json.parseToJsonElement(
+        """
+            [
+              "signature",
+              "expired",
+              "not-before"
+            ]
+        """
+        ).jsonArray.parsePolicyRequests()
+
+        val specificPolicies = Json.parseToJsonElement(
+        """
+           {
+              "OpenBadgeCredential": [
+                  {
+                    "policy": "schema",
+                    "args": {
+                        "type": "object",
+                        "required": ["issuer"],
+                        "properties": {
+                            "issuer": {
+                                "type": "object"
+                            }
+                        }
+                    }
+                }
+              ]
+           } 
+        """
+        ).jsonObject.mapValues { it.value.jsonArray.parsePolicyRequests() }
+
+        // validate verifiable presentation against the configured policies
+        // Assumes jws.payload["vp"]["verifiableCredential"] or jws.payload["verifiableCredential"]
+        val validationResult = runBlocking {
+            PolicyRunner.verifyPresentation(
+                    vpTokenJwt = jws,
+                    vpPolicies = vpPolicies,
+                    globalVcPolicies = vcPolicies,
+                    specificCredentialPolicies = specificPolicies,
+                    mapOf(
+                            "presentationSubmission" to JsonObject(emptyMap()),
+                            "challenge" to "abc"
+                    )
+            )
+        }
+
+        return validationResult
     }
 
     fun verifyVC(jwt : String) : String {

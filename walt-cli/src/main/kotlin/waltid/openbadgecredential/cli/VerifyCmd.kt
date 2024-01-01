@@ -7,7 +7,6 @@ import picocli.CommandLine.Spec
 import java.io.File
 import kotlin.system.exitProcess
 
-
 @Command(
         name = "verify",
         mixinStandardHelpOptions = true,
@@ -16,7 +15,7 @@ import kotlin.system.exitProcess
 class VerifyCmd : Runnable {
 
     @CommandLine.Option(names = [ "-f", "--file" ],
-            defaultValue = "jwt.json",
+            defaultValue = "vp-jws.json",
             description =   ["File with a signed JWT-encoded credential to be presented. Defaults to 'jwt.json'"])
     lateinit var fileSource : File
 
@@ -50,9 +49,9 @@ class VerifyCmd : Runnable {
         }
 
         println("")
-        println("+-------------+")
-        println("| Encoded JWS |")
-        println("+-------------+")
+        println("+-------------------------------+")
+        println("| Encoded VP JWS to be verified |")
+        println("+-------------------------------+")
         println(jws)
         println()
 
@@ -72,15 +71,30 @@ class VerifyCmd : Runnable {
         // Unsupported JWS algorithm ES256K, must be HS256, HS384 or HS512
         // val validJWSWithSecp256k1 = "eyJhbGciOiJFUzI1NksiLCJ0eXAiOiJKV1QiLCJraWQiOiJkaWQ6a2V5OnpkQ3J1MzlHUlZUajdZNmdLUmJUOWF4YkVycFI5eEFxOUdtUW9nVks4Q1RYR29pdTFqSHZ3QUJoSDN5SDR1NWJ4WmN3NGlaNTFoZDR1TktyczRaTmliNGdDM0JUM0Fqa0NwS3FpemZTOTZtZlBYMlMyeXkxV2FRY2ZIdUQifQ.eyJpc3MiOiJkaWQ6a2V5OnpkQ3J1MzlHUlZUajdZNmdLUmJUOWF4YkVycFI5eEFxOUdtUW9nVks4Q1RYR29pdTFqSHZ3QUJoSDN5SDR1NWJ4WmN3NGlaNTFoZDR1TktyczRaTmliNGdDM0JUM0Fqa0NwS3FpemZTOTZtZlBYMlMyeXkxV2FRY2ZIdUQiLCJzdWIiOiJkaWQ6a2V5OnpkQ3J1MzlHUlZUajdZNmdLUmJUOWF4YkVycFI5eEFxOUdtUW1TUUVlcVRwallrbjR4bmJFR1lvTW9WeUdVRTkyM2FkVFg2RmYzdjgxcG56eFBobjIzd3FZS0g2b0JuS3ppY21kUWtVQ1VhbkZkSlJ6VHZiU1lXaWM0NGQiLCJ2YyI6eyJjb250ZXh0IjoiaHR0cHM6Ly93M2lkLm9yZy9vcGVuYmFkZ2VzL3YyIiwiaWQiOiJ1cm46dXVpZDo5MWM2ZWE2OC00MTU5LTRkYWUtYjYzNy0zZWQ3MDNmYmMyOWMiLCJ0eXBlIjoiQXNzZXJ0aW9uIiwicmVjaXBpZW50Ijp7InR5cGUiOiJlbWFpbCIsImlkZW50aXR5IjoiYWxlZ29tZXNAZ21haWwuY29tIiwiaGFzaGVkIjpmYWxzZX0sImJhZGdlIjp7InR5cGUiOiJCYWRnZUNsYXNzIiwiaWQiOiJ1cm46dXVpZDo1NGMzYTEzYS1lYTAxLTRjZGYtOWZhMS04NTEyOWNlNWMyMzMiLCJuYW1lIjoiQ29mZmVlIExvdmVyIiwiZGVzY3JpcHRpb24iOiJBIHRydWUgbG92ZXIgb2YgZ29vZCBjb2ZmZWUiLCJpbWFnZSI6Imh0dHBzOi8vd3d3LnRlZXB1YmxpYy5jb20vbWFnbmV0LzQwNjc0MzItY2VydGlmaWVkLWNvZmZlZS1sb3Zlci1jYWZmZWluZS1hZGRpY3QiLCJjcml0ZXJpYSI6eyJ0eXBlIjoiQ3JpdGVyaWEiLCJuYXJyYXRpdmUiOiJBYmxlIHRvIGNhcnJ5IG91dCBkZXRhaWxlZCBzZW5zb3J5IGFuYWx5c2lzIG9mIGRpZmZlcmVudCBjb2ZmZWUgdGFzdGluZ3MuIn0sImlzc3VlciI6eyJpZCI6ImRpZDprZXk6emRDcnUzOUdSVlRqN1k2Z0tSYlQ5YXhiRXJwUjl4QXE5R21Rb2dWSzhDVFhHb2l1MWpIdndBQmhIM3lINHU1YnhaY3c0aVo1MWhkNHVOS3JzNFpOaWI0Z0MzQlQzQWprQ3BLcWl6ZlM5Nm1mUFgyUzJ5eTFXYVFjZkh1RCIsInR5cGUiOiJQcm9maWxlIiwibmFtZSI6IlRoZSBDb2ZmZWUgUGFsYWNlIiwidXJsIjoiaHR0cHM6Ly9lbi53aWtpcGVkaWEub3JnL3dpa2kvQ29mZmVlX3BhbGFjZSIsImVtYWlsIjoiYWxlZ29tZXNAZ21haWwuY29tIn19LCJ2ZXJpZmljYXRpb24iOnsidHlwZSI6Imhvc3RlZCJ9LCJpc3N1ZWRPbiI6IjIwMjMtMTItMjlUMjI6NDg6MjEuMjM4MTQ3WiIsImV4cGlyZXMiOiIyMDI0LTA2LTI2VDIyOjQ4OjIxLjIzODE0N1oifSwianRpIjoidXJuOnV1aWQ6OTFjNmVhNjgtNDE1OS00ZGFlLWI2MzctM2VkNzAzZmJjMjljIn0.zJ-EWU1lQV8fMSIU-lpbqf2Z81C_0G7tRcx2Gum6jt4xpSAjFQdrZ-Ek-YPXN7o8eQdtniUj416sb2WcWhLILQ"
 
+        println("Verifying token signature...")
+        val signatureVerification = OpenBadgeService().verifySignature(jws)
 
-        // TODO The verification was not supposed to be about the Verifiable Presentation?
-        val result = OpenBadgeService().verifyJWS(jws)
+        println("Verifying other policies...")
+        val otherVerification =  try {
+            OpenBadgeService().verifyMultiplePolicies(jws)
+        } catch (e : IllegalArgumentException) {
+            // PresentationVerificationResponse(listOf(PresentationResultEntry()))
+            println("Other policies failed: ${e.toString()}" )
+            null
+        }
+
         println("------------------------------------------------------------------")
         println("Verification Result:")
         println("------------------------------------------------------------------")
 
-        if (result.isSuccess) println("Success!")
-        else println("Failed :-( - ${result.exceptionOrNull()?.message}")
+        print("Signature: ")
+        if (signatureVerification.isSuccess) println("Success!")
+        else println("Failed :-( - ${signatureVerification.exceptionOrNull()?.message}")
+
+        print("Others: ")
+        if (otherVerification != null && otherVerification.overallSuccess()) println("Success!")
+        else println("Failed - ${otherVerification?.policiesFailed()}")
+
     }
 
 }
