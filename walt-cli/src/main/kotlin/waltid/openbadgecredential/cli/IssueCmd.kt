@@ -1,6 +1,7 @@
 package waltid.openbadgecredential.cli
 
 import picocli.CommandLine.Command
+import waltid.openbadgecredential.cli.utils.FileNames
 
 @Command(
         name = "issue",
@@ -13,7 +14,7 @@ class IssueCmd : Runnable {
         val vc = OpenBadgeService().issueVC()
         println("------------------------------------------------------------------")
         println("JWT-encoded version of the newly created (and signed?) credential ")
-        println("saved in file vc-jws.json to be verified later.")
+        println("saved in file ${FileNames.VC_JWS} to be verified later.")
         println("------------------------------------------------------------------")
         println(vc)
     }

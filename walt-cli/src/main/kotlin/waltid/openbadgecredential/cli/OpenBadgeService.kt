@@ -1,7 +1,5 @@
 package waltid.openbadgecredential.cli
 
-import com.nimbusds.jose.JWSAlgorithm
-import com.nimbusds.jose.crypto.MACVerifier
 import id.walt.credentials.PresentationBuilder
 import id.walt.credentials.issuance.Issuer.mergingJwtIssue
 import id.walt.credentials.schemes.JwsSignatureScheme
@@ -23,9 +21,11 @@ import kotlinx.datetime.Clock
 import kotlinx.serialization.json.*
 import waltid.openbadgecredential.cli.model.OpenBadge
 import waltid.openbadgecredential.cli.model.Profile
+import waltid.openbadgecredential.cli.utils.FileNames
 import waltid.openbadgecredential.cli.utils.toPrettyJson
 import java.io.File
 import kotlin.time.Duration.Companion.days
+
 
 
 class OpenBadgeService {
@@ -55,8 +55,7 @@ class OpenBadgeService {
         val vc = this.createVC(assertion)
 
         // Save the newly created VC in vc.json file
-        val fileName = "vc.json"
-        val file = File(fileName)
+        val file = File(FileNames.VC)
         file.writeText(vc.toPrettyJson())
 
         println("-------------------------------------------------------")
@@ -69,7 +68,7 @@ class OpenBadgeService {
         val signedVC = signVC(vc)
 
         // Save the newly created VC in vc.json file
-        File("vc-jws.json").writeText(signedVC)
+        File(FileNames.VC_JWS).writeText(signedVC)
 
         return signedVC
     }
@@ -150,7 +149,7 @@ class OpenBadgeService {
 
         println("---------------------------------------------------------")
         println("Human-readable version of the newly created presentation.")
-        println("saved at vp.json.")
+        println("saved at ${FileNames.VP}.")
         println("---------------------------------------------------------")
         println(toPrettyJson(vp))
 
@@ -191,8 +190,8 @@ class OpenBadgeService {
         //  - Using a random key
 
         // Save presentation for later use
-        File("vp.json").writeText(toPrettyJson(vp))
-        File("vp-jws.json").writeText(vpJWS)
+        File(FileNames.VP).writeText(toPrettyJson(vp))
+        File(FileNames.VP_JWS).writeText(vpJWS)
 
         return vpJWS
     }
@@ -232,13 +231,13 @@ class OpenBadgeService {
 //    }
 //
 
+    // Example from https://docs.oss.walt.id/verifier/sdks/verify-single-element
     fun verifySignature(jws : String) :  Result<Any>{
 
         // JWT as defined in https://www.iana.org/assignments/jwt/jwt.xhtml
         val decodedJWS = jws.decodeJws(withSignature = true)
         prettyPrint(decodedJWS)
 
-        // From https://docs.oss.walt.id/verifier/sdks/verify-single-element
         val dataToVerify: JsonElement = JsonPrimitive(jws)
 
         val policyRequest = PolicyRequest(JwtSignaturePolicy())
@@ -254,8 +253,8 @@ class OpenBadgeService {
         return result
     }
 
+    // Example from https://docs.oss.walt.id/verifier/sdks/verify-presentation
     fun verifyMultiplePolicies(jws : String) : PresentationVerificationResponse {
-        // val vpToken = "jwt"
 
         // val vpPolicies = listOf(PolicyRequest(JwtSignaturePolicy()))
         // val vcPolicies = listOf(PolicyRequest(JwtSignaturePolicy()))
@@ -310,7 +309,8 @@ class OpenBadgeService {
                     vpPolicies = vpPolicies,
                     globalVcPolicies = vcPolicies,
                     specificCredentialPolicies = specificPolicies,
-                    mapOf(
+                    presentationContext = mapOf(
+                            // "presentationDefinition" to presentationDefinition,
                             "presentationSubmission" to JsonObject(emptyMap()),
                             "challenge" to "abc"
                     )
@@ -320,43 +320,43 @@ class OpenBadgeService {
         return validationResult
     }
 
-    fun verifyVC(jwt : String) : String {
-
-        val sharedSecret = "ef23f749-7238-481a-815c-f0c2157dfa8e"
-
-        // Create SimpleJWTCryptoProvider with MACSigner and MACVerifier
-        val cryptoProvider = SimpleJWTCryptoProvider(JWSAlgorithm.HS256, jwsSigner = null, jwsVerifier = MACVerifier(sharedSecret))
-
-
-        // val cryptoProvider = SimpleJWTCryptoProvider(JWSAlgorithm.RS256, jwsSigner = null, jwsVerifier = MACVerifier(sharedSecret))
+//     fun verifyVC(jwt : String) : String {
 //
-////    val undisclosedJwt = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI0NTYiLCJfc2QiOlsiaGx6ZmpmMDRvNVpzTFIyNWhhNGMtWS05SFcyRFVseGNnaU1ZZDMyNE5nWSJdfQ.2fsLqzujWt0hS0peLS8JLHyyo3D5KCDkNnHcBYqQwVo~"
+//         val sharedSecret = "ef23f749-7238-481a-815c-f0c2157dfa8e"
 //
-        // verify and parse presented SD-JWT with all fields undisclosed, throws Exception if verification fails!
-        // If KeyType.Ed25519 is used, "com.nimbusds.jose.JOSEException: Unsupported JWS algorithm EdDSA, must be HS256, HS384 or HS512"
-        val parsedVerifiedUndisclosedJwt = SDJwt.verifyAndParse(jwt, cryptoProvider)
+//         // Create SimpleJWTCryptoProvider with MACSigner and MACVerifier
+//         val cryptoProvider = SimpleJWTCryptoProvider(JWSAlgorithm.HS256, jwsSigner = null, jwsVerifier = MACVerifier(sharedSecret))
 //
-//        // print full payload with disclosed fields only
-//        println("Undisclosed JWT payload:")
-//        println(parsedVerifiedUndisclosedJwt.sdJwt.fullPayload)
-////    println(parsedVerifiedUndisclosedJwt.sdPayload.fullPayload.toString())
 //
-//        // alternatively parse and verify in 2 steps:
-//        val parsedUndisclosedJwt = SDJwt.parse(jwt)
-//        val isValid = parsedUndisclosedJwt.verify(cryptoProvider)
-//        println("Undisclosed SD-JWT verified: $isValid")
+//         // val cryptoProvider = SimpleJWTCryptoProvider(JWSAlgorithm.RS256, jwsSigner = null, jwsVerifier = MACVerifier(sharedSecret))
+// //
+// ////    val undisclosedJwt = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI0NTYiLCJfc2QiOlsiaGx6ZmpmMDRvNVpzTFIyNWhhNGMtWS05SFcyRFVseGNnaU1ZZDMyNE5nWSJdfQ.2fsLqzujWt0hS0peLS8JLHyyo3D5KCDkNnHcBYqQwVo~"
+// //
+//         // verify and parse presented SD-JWT with all fields undisclosed, throws Exception if verification fails!
+//         // If KeyType.Ed25519 is used, "com.nimbusds.jose.JOSEException: Unsupported JWS algorithm EdDSA, must be HS256, HS384 or HS512"
+//         val parsedVerifiedUndisclosedJwt = SDJwt.verifyAndParse(jwt, cryptoProvider)
+// //
+// //        // print full payload with disclosed fields only
+// //        println("Undisclosed JWT payload:")
+// //        println(parsedVerifiedUndisclosedJwt.sdJwt.fullPayload)
+// ////    println(parsedVerifiedUndisclosedJwt.sdPayload.fullPayload.toString())
+// //
+// //        // alternatively parse and verify in 2 steps:
+// //        val parsedUndisclosedJwt = SDJwt.parse(jwt)
+// //        val isValid = parsedUndisclosedJwt.verify(cryptoProvider)
+// //        println("Undisclosed SD-JWT verified: $isValid")
+// //
+// //        val parsedVerifiedDisclosedJwt = SDJwt.verifyAndParse(
+// //                "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI0NTYiLCJfc2QiOlsiaGx6ZmpmMDRvNVpzTFIyNWhhNGMtWS05SFcyRFVseGNnaU1ZZDMyNE5nWSJdfQ.2fsLqzujWt0hS0peLS8JLHyyo3D5KCDkNnHcBYqQwVo~WyJ4RFk5VjBtOG43am82ZURIUGtNZ1J3Iiwic3ViIiwiMTIzIl0~",
+// //                cryptoProvider
+// //        )
+// //        // print full payload with disclosed fields
+// //        println("Disclosed JWT payload:")
+// ////    println(parsedVerifiedDisclosedJwt.sdPayload.fullPayload.toString())
+// //        println(parsedVerifiedDisclosedJwt.sdJwt.fullPayload.toString())
 //
-//        val parsedVerifiedDisclosedJwt = SDJwt.verifyAndParse(
-//                "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI0NTYiLCJfc2QiOlsiaGx6ZmpmMDRvNVpzTFIyNWhhNGMtWS05SFcyRFVseGNnaU1ZZDMyNE5nWSJdfQ.2fsLqzujWt0hS0peLS8JLHyyo3D5KCDkNnHcBYqQwVo~WyJ4RFk5VjBtOG43am82ZURIUGtNZ1J3Iiwic3ViIiwiMTIzIl0~",
-//                cryptoProvider
-//        )
-//        // print full payload with disclosed fields
-//        println("Disclosed JWT payload:")
-////    println(parsedVerifiedDisclosedJwt.sdPayload.fullPayload.toString())
-//        println(parsedVerifiedDisclosedJwt.sdJwt.fullPayload.toString())
-
-    return parsedVerifiedUndisclosedJwt.toString()
-    }
+//     return parsedVerifiedUndisclosedJwt.toString()
+//     }
 
 }
 

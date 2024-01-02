@@ -4,6 +4,7 @@ import picocli.CommandLine
 import picocli.CommandLine.Command
 import picocli.CommandLine.Model.CommandSpec
 import picocli.CommandLine.Spec
+import waltid.openbadgecredential.cli.utils.FileNames
 import java.io.File
 import kotlin.system.exitProcess
 
@@ -15,7 +16,7 @@ import kotlin.system.exitProcess
 class VerifyCmd : Runnable {
 
     @CommandLine.Option(names = [ "-f", "--file" ],
-            defaultValue = "vp-jws.json",
+            defaultValue = FileNames.VP_JWS,
             description =   ["File with a signed JWT-encoded credential to be presented. Defaults to 'jwt.json'"])
     lateinit var fileSource : File
 

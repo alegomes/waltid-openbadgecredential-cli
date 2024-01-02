@@ -3,6 +3,7 @@ package waltid.openbadgecredential.cli
 import picocli.CommandLine
 import picocli.CommandLine.Command
 import picocli.CommandLine.Option
+import waltid.openbadgecredential.cli.utils.FileNames
 import waltid.openbadgecredential.cli.utils.toPrettyJson
 import java.io.File
 import kotlin.system.exitProcess
@@ -19,7 +20,7 @@ class PresentCmd : Runnable {
 
 //    class JWTSource {
         @Option(names = [ "-f", "--file" ],
-                defaultValue = "vc-jws.json",
+                defaultValue = FileNames.VC_JWS,
                 description =   ["File with a JWT-encoded credential to be presented. Defaults to 'jwt.json'"])
         lateinit var fileSource : File
 
@@ -63,7 +64,7 @@ class PresentCmd : Runnable {
 
         val vpJWS = OpenBadgeService().presentVC(jws)
         println("------------------------------------------------------------------")
-        println("Presentation saved in vp-jws.json file")
+        println("Presentation saved in ${FileNames.VP_JWS} file")
         println("------------------------------------------------------------------")
         println(toPrettyJson(vpJWS))
     }
